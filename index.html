@@ -159,6 +159,26 @@ body{
 }
 .legend-dot{width:10px;height:10px;border-radius:50%}
 
+/* Lightbox */
+.lightbox{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  background:rgba(0,0,0,.85);
+  justify-content:center;
+  align-items:center;
+  cursor:zoom-out;
+}
+.lightbox.open{display:flex}
+.lightbox img{
+  max-width:90vw;
+  max-height:90vh;
+  border-radius:var(--radius);
+  object-fit:contain;
+}
+.t-img,.card-img{cursor:zoom-in}
+
 /* Table */
 .table-wrap{
   max-width:100%;
@@ -199,11 +219,19 @@ body{
 }
 .ev-table tbody td.num{text-align:right;font-family:'Fraunces',serif;font-weight:600}
 .ev-table .t-name{
+  white-space:normal;
+  min-width:180px;
+}
+.t-name-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.t-name-info{
   font-family:'Fraunces',serif;
   font-weight:600;
   font-size:14px;
-  white-space:normal;
-  min-width:140px;
+  line-height:1.3;
 }
 .ev-table .t-specs{
   font-size:11px;
@@ -247,6 +275,15 @@ body{
 .t-tag-popular{background:rgba(251,191,36,.12);color:var(--gold)}
 .t-tag-cat{background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.15)}
 
+/* Car image (table) */
+.t-img{
+  width:56px;height:38px;
+  object-fit:cover;
+  border-radius:6px;
+  vertical-align:middle;
+  margin-right:8px;
+}
+
 /* Cards (mobile) */
 .card-grid{display:none}
 .card{
@@ -254,6 +291,13 @@ body{
   border:1px solid var(--border);
   border-radius:var(--radius);
   padding:16px;
+  margin-bottom:12px;
+}
+.card-img{
+  width:100%;
+  height:140px;
+  object-fit:cover;
+  border-radius:8px;
   margin-bottom:12px;
 }
 .card-head{
@@ -392,34 +436,38 @@ body{
   <p style="margin-top:12px"><a href="https://github.com/fabianhtml/cambio-autoelectrico" style="color:var(--accent);text-decoration:none;font-size:12px">Ver código en GitHub ↗</a></p>
 </div>
 
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
 <script>
 const data = {
   suvs: [
-    {name:"BYD Yuan Pro GL",origin:"China",price:21.99,specs:["380 km","170 HP"],vs:"Kia Sportage 2.0",vsPrice:24.99,prima:-2.50,ahorro:2.716,ahorroTotal:3.266,payback:"Día 1",tag:"Más barato"},
-    {name:"BYD Yuan Plus GS",origin:"China",price:22.99,specs:["480 km","201 HP","⭐ Euro NCAP"],vs:"Hyundai Tucson 2.0",vsPrice:26.99,prima:-3.50,ahorro:2.710,ahorroTotal:3.300,payback:"Día 1",tag:"Mejor relación"},
-    {name:"MG ZS EV",origin:"China",price:29.99,specs:["~380 km","174 HP"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:1.50,ahorro:2.710,ahorroTotal:3.320,payback:"0,5 años"},
-    {name:"Chevrolet Bolt EUV",origin:"EE.UU.",price:29.99,specs:["456 km","200 HP"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:1.50,ahorro:2.710,ahorroTotal:3.320,payback:"0,5 años"},
-    {name:"Volvo EX30",origin:"Suecia",price:34.90,specs:["380–489 km","272 HP"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:6.41,ahorro:2.696,ahorroTotal:3.266,payback:"2,0 años",tag2:"N°1 ventas Chile"},
-    {name:"Peugeot e-2008",origin:"Francia",price:40.09,specs:["462 km","160 HP"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:11.60,ahorro:2.681,ahorroTotal:3.231,payback:"3,6 años"},
-    {name:"Tesla Model Y RWD",origin:"EE.UU.",price:44.00,specs:["400+ km","283 HP"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:15.51,ahorro:2.725,ahorroTotal:3.315,payback:"4,7 años",tag2:"N°2 ventas"}
+    {name:"BYD Yuan Pro GL",origin:"China",img:"img/byd-yuan-pro.jpg",price:21.99,specs:["380 km","170 HP"],vs:"Kia Sportage 2.0",vsPrice:24.99,prima:-2.50,ahorro:2.716,ahorroTotal:3.266,payback:"Desde día 1",tag:"Más barato"},
+    {name:"BYD Yuan Plus GS",origin:"China",img:"img/byd-yuan-plus.jpg",price:22.99,specs:["480 km","201 HP","⭐ Euro NCAP"],vs:"Hyundai Tucson 2.0",vsPrice:26.99,prima:-3.50,ahorro:2.710,ahorroTotal:3.300,payback:"Desde día 1",tag:"Mejor relación"},
+    {name:"MG ZS EV",origin:"China",img:"img/mg-zs-ev.jpg",price:29.99,specs:["~380 km","174 HP"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:1.50,ahorro:2.710,ahorroTotal:3.320,payback:"0,5 años"},
+    {name:"Chevrolet Bolt EUV",origin:"EE.UU.",img:"img/chevrolet-bolt-euv.jpg",price:29.99,specs:["456 km","200 HP"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:1.50,ahorro:2.710,ahorroTotal:3.320,payback:"0,5 años"},
+    {name:"Volvo EX30",origin:"Suecia",img:"img/volvo-ex30.jpg",price:34.90,specs:["380–489 km","272 HP"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:6.41,ahorro:2.696,ahorroTotal:3.266,payback:"2,0 años",tag2:"N°1 ventas Chile"},
+    {name:"Peugeot e-2008",origin:"Francia",img:"img/peugeot-e2008.jpg",price:40.09,specs:["462 km","160 HP"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:11.60,ahorro:2.681,ahorroTotal:3.231,payback:"3,6 años"},
+    {name:"Tesla Model Y RWD",origin:"EE.UU.",img:"img/tesla-model-y.jpg",price:44.00,specs:["400+ km","283 HP"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:15.51,ahorro:2.725,ahorroTotal:3.315,payback:"4,7 años",tag2:"N°2 ventas"}
   ],
   sedanes: [
-    {name:"Dongfeng E70",origin:"China",price:25.00,specs:["420 km","Sedán familiar"],vs:"Toyota Corolla 2.0",vsPrice:22.49,prima:3.01,ahorro:2.181,ahorroTotal:2.661,payback:"1,1 años"},
-    {name:"Tesla Model 3 RWD",origin:"EE.UU.",price:39.90,specs:["629 km","Autopilot"],vs:"BMW Serie 3 320i",vsPrice:52.99,prima:-12.59,ahorro:2.239,ahorroTotal:2.919,payback:"Día 1",tag:"Ahorra $13M desde el día 1",tag2:"N°3 ventas"},
-    {name:"BYD Seal AWD",origin:"China",price:48.99,specs:["520 km","523 HP","0–100 en 3,8s"],vs:"BMW Serie 3 320i",vsPrice:52.99,prima:-3.50,ahorro:2.138,ahorroTotal:2.808,payback:"Día 1"},
-    {name:"Kia EV6",origin:"Corea",price:57.99,specs:["589 km","321 HP","800V"],vs:"BMW Serie 3 320i",vsPrice:52.99,prima:5.50,ahorro:2.181,ahorroTotal:2.841,payback:"1,9 años"}
+    {name:"Dongfeng E70",origin:"China",img:"img/dongfeng-e70.jpg",price:25.00,specs:["420 km","Sedán familiar"],vs:"Toyota Corolla 2.0",vsPrice:22.49,prima:3.01,ahorro:2.181,ahorroTotal:2.661,payback:"1,1 años"},
+    {name:"Tesla Model 3 RWD",origin:"EE.UU.",img:"img/tesla-model-3.jpg",price:39.90,specs:["629 km","Autopilot"],vs:"BMW Serie 3 320i",vsPrice:52.99,prima:-12.59,ahorro:2.239,ahorroTotal:2.919,payback:"Desde día 1",tag:"Ahorra $13M desde el día 1",tag2:"N°3 ventas"},
+    {name:"BYD Seal AWD",origin:"China",img:"img/byd-seal.jpg",price:48.99,specs:["520 km","523 HP","0–100 en 3,8s"],vs:"BMW Serie 3 320i",vsPrice:52.99,prima:-3.50,ahorro:2.138,ahorroTotal:2.808,payback:"Desde día 1"},
+    {name:"Kia EV6",origin:"Corea",img:"img/kia-ev6.jpg",price:57.99,specs:["589 km","321 HP","800V"],vs:"BMW Serie 3 320i",vsPrice:52.99,prima:5.50,ahorro:2.181,ahorroTotal:2.841,payback:"1,9 años"}
   ],
   phev: [
-    {name:"BYD Song Pro DM-i",origin:"China",price:21.99,specs:["80 km eléctrico","982 km total"],vs:"Kia Sportage 2.0",vsPrice:24.99,prima:-2.50,ahorro:2.271,ahorroTotal:2.721,payback:"Día 1"},
-    {name:"BYD Song Plus DM-i",origin:"China",price:26.99,specs:["105 km eléctrico","1.150 km total"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:-1.50,ahorro:2.209,ahorroTotal:2.689,payback:"Día 1",tag2:"N°1 híbrido Chile"},
-    {name:"BYD Shark DMO",origin:"China",price:45.10,specs:["100 km eléctrico","840 km total","430 HP"],vs:"Ford Ranger XLT Diesel 4×4",vsPrice:44.73,prima:0.87,ahorro:4.176,ahorroTotal:4.776,payback:"0,2 años"}
+    {name:"BYD Song Pro DM-i",origin:"China",img:"img/byd-song-pro.jpg",price:21.99,specs:["80 km eléctrico","982 km total"],vs:"Kia Sportage 2.0",vsPrice:24.99,prima:-2.50,ahorro:2.271,ahorroTotal:2.721,payback:"Desde día 1"},
+    {name:"BYD Song Plus DM-i",origin:"China",img:"img/byd-song-plus.jpg",price:26.99,specs:["105 km eléctrico","1.150 km total"],vs:"Toyota RAV4 2.0",vsPrice:28.99,prima:-1.50,ahorro:2.209,ahorroTotal:2.689,payback:"Desde día 1",tag2:"N°1 híbrido Chile"},
+    {name:"BYD Shark DMO",origin:"China",img:"img/byd-shark.jpg",price:45.10,specs:["100 km eléctrico","840 km total","430 HP"],vs:"Ford Ranger XLT Diesel 4×4",vsPrice:44.73,prima:0.87,ahorro:4.176,ahorroTotal:4.776,payback:"0,2 años"}
   ]
 };
 
 const originClass = {China:"badge-china","EE.UU.":"badge-eeuu",Corea:"badge-corea",Suecia:"badge-suecia",Francia:"badge-francia"};
 
 function paybackClass(p){
-  if(p==="Día 1")return "instant";
+  if(p==="Desde día 1")return "instant";
   const n=parseFloat(p.replace(",","."));
   return n<=2?"fast":"slow";
 }
@@ -439,6 +487,7 @@ function tagHtml(car){
 function renderCard(car){
   const pb = paybackClass(car.payback);
   return `<div class="card">
+    <img class="card-img" src="${car.img}" alt="${car.name}" loading="lazy">
     <div class="card-head">
       <div>
         <div class="card-name">${car.name}</div>
@@ -447,9 +496,9 @@ function renderCard(car){
       <span class="car-badge ${originClass[car.origin]||''}">${car.origin}</span>
     </div>
     <div class="card-specs">${car.specs.join(' · ')}</div>
-    <div class="card-row"><span class="card-label">Precio eléctrico</span><span class="card-val">$${car.price.toFixed(2).replace(".",",")}M</span></div>
-    <div class="card-vs">vs ${car.vs} — $${car.vsPrice.toFixed(2).replace(".",",")}M</div>
-    <div class="card-row"><span class="card-label">Diferencia</span><span class="card-val">${fmtPrima(car.prima)}</span></div>
+    <div class="card-row"><span class="card-label">Precio</span><span class="card-val">$${car.price.toFixed(2).replace(".",",")}M</span></div>
+    <div class="card-vs">Modelo similar: ${car.vs} — $${car.vsPrice.toFixed(2).replace(".",",")}M</div>
+    <div class="card-row"><span class="card-label">Diferencia de precio</span><span class="card-val">${fmtPrima(car.prima)}</span></div>
     <div class="card-bottom">
       <div class="card-ahorro">$${car.ahorroTotal.toFixed(2).replace(".",",")}M<small>ahorro/año</small></div>
       <span class="t-payback-badge t-pb-${pb}"><span class="t-pb-dot"></span>${car.payback}</span>
@@ -464,7 +513,7 @@ function buildCards(cars){
 function renderRow(car){
   const pb = paybackClass(car.payback);
   return `<tr>
-    <td class="t-name">${car.name}${tagHtml(car)}</td>
+    <td class="t-name"><div class="t-name-wrap"><img class="t-img" src="${car.img}" alt="${car.name}" loading="lazy"><div class="t-name-info">${car.name}${tagHtml(car)}</div></div></td>
     ${car.category ? `<td><span class="t-tag t-tag-cat">${car.category}</span></td>` : ''}
     <td><span class="car-badge ${originClass[car.origin]||''}">${car.origin}</span></td>
     <td class="t-specs">${car.specs.join(' · ')}</td>
@@ -485,7 +534,7 @@ function buildTable(cars, showType){
       <th>Origen</th>
       <th>Características</th>
       <th class="num">Precio</th>
-      <th>vs. Bencina</th>
+      <th>Modelo similar</th>
       <th class="num">Precio ref.</th>
       <th class="num">Diferencia</th>
       <th class="num">Ahorro/año</th>
@@ -502,7 +551,7 @@ const allCars = [];
   data[cat].forEach(car => allCars.push({...car, category: catLabels[cat]}));
 });
 function paybackNum(p){
-  if(p==="Día 1") return -1;
+  if(p==="Desde día 1") return -1;
   return parseFloat(p.replace(",","."));
 }
 allCars.sort((a,b) => paybackNum(a.payback) - paybackNum(b.payback));
@@ -521,6 +570,13 @@ function showTab(id){
   event.target.closest('.tab-btn').classList.add('active');
   document.getElementById(id).classList.add('active');
 }
+
+document.addEventListener('click', e => {
+  if (e.target.matches('.t-img, .card-img')) {
+    document.getElementById('lightbox-img').src = e.target.src;
+    document.getElementById('lightbox').classList.add('open');
+  }
+});
 </script>
 </body>
 </html>
