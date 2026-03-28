@@ -384,10 +384,21 @@ body{
   <button class="tab-btn" onclick="showTab('phev')">Híbridos <span class="count">3</span></button>
 </nav>
 
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Ahorra desde el día 1</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> Recuperas en &lt;2 años</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--negative)"></div> Recuperas en +2 años</div>
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:0 24px;margin-bottom:20px">
+  <div class="legend" style="margin:0;padding:0">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Ahorra desde el día 1</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> Recuperas en &lt;2 años</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--negative)"></div> Recuperas en +2 años</div>
+  </div>
+  <div>
+    <label style="font-size:12px;color:var(--text2);margin-right:6px">Ordenar por</label>
+    <select id="sort-select" onchange="reSort(this.value)" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer">
+      <option value="payback">Recuperación</option>
+      <option value="price">Precio (menor a mayor)</option>
+      <option value="price-desc">Precio (mayor a menor)</option>
+      <option value="savings">Ahorro anual</option>
+    </select>
+  </div>
 </div>
 
 <!-- ========== Todos ========== -->
@@ -544,7 +555,7 @@ function buildTable(cars, showType){
   </table>`;
 }
 
-// Build "todos" combined & sorted
+// Build "todos" combined
 const catLabels = {suvs:'SUV',sedanes:'Sedán',phev:'Híbrido'};
 const allCars = [];
 ['suvs','sedanes','phev'].forEach(cat => {
@@ -554,15 +565,28 @@ function paybackNum(p){
   if(p==="Desde día 1") return -1;
   return parseFloat(p.replace(",","."));
 }
-allCars.sort((a,b) => paybackNum(a.payback) - paybackNum(b.payback));
 
-// Render all sections
-['suvs','sedanes','phev'].forEach(id => {
-  document.getElementById(id+'-table').innerHTML = buildTable(data[id], false);
-  document.getElementById(id+'-cards').innerHTML = buildCards(data[id]);
-});
-document.getElementById('todos-table').innerHTML = buildTable(allCars, true);
-document.getElementById('todos-cards').innerHTML = buildCards(allCars);
+const sortFns = {
+  payback: (a,b) => paybackNum(a.payback) - paybackNum(b.payback),
+  price: (a,b) => a.price - b.price,
+  'price-desc': (a,b) => b.price - a.price,
+  savings: (a,b) => b.ahorroTotal - a.ahorroTotal
+};
+
+function renderAll(sortKey){
+  const sort = sortFns[sortKey] || sortFns.payback;
+  ['suvs','sedanes','phev'].forEach(id => {
+    const sorted = [...data[id]].sort(sort);
+    document.getElementById(id+'-table').innerHTML = buildTable(sorted, false);
+    document.getElementById(id+'-cards').innerHTML = buildCards(sorted);
+  });
+  const sortedAll = [...allCars].sort(sort);
+  document.getElementById('todos-table').innerHTML = buildTable(sortedAll, true);
+  document.getElementById('todos-cards').innerHTML = buildCards(sortedAll);
+}
+
+function reSort(val){ renderAll(val); }
+renderAll('payback');
 
 function showTab(id){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
