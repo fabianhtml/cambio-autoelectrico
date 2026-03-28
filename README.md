@@ -2,6 +2,8 @@
 
 Guía comparativa de autos eléctricos en Chile: ¿cuánto ahorras al cambiar desde un auto a bencina?
 
+Inspirado en [este tweet de @marcelomena](https://x.com/marcelomena/status/2037928391228150224).
+
 ## Qué incluye
 
 - **SUVs eléctricos** — BYD Yuan, MG ZS EV, Bolt EUV, Volvo EX30, Tesla Model Y y más
