@@ -247,11 +247,81 @@ body{
 .t-tag-popular{background:rgba(251,191,36,.12);color:var(--gold)}
 .t-tag-cat{background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.15)}
 
+/* Cards (mobile) */
+.card-grid{display:none}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-bottom:12px;
+}
+.card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:8px;
+  margin-bottom:10px;
+}
+.card-name{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:16px;
+  line-height:1.2;
+}
+.card-specs{
+  font-size:12px;
+  color:var(--text2);
+  margin:4px 0 12px;
+}
+.card-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:6px 0;
+  font-size:13px;
+  border-top:1px solid var(--border);
+}
+.card-row:first-of-type{border-top:none}
+.card-label{color:var(--text2)}
+.card-val{font-family:'Fraunces',serif;font-weight:600;text-align:right}
+.card-vs{
+  font-size:12px;
+  color:var(--text2);
+  padding:8px 0 4px;
+  border-top:1px solid var(--border);
+}
+.card-bottom{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-top:10px;
+  margin-top:6px;
+  border-top:1px solid var(--border);
+}
+.card-ahorro{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:18px;
+  color:var(--accent);
+}
+.card-ahorro small{
+  display:block;
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;
+  font-weight:400;
+  color:var(--text2);
+}
+
 /* Responsive */
-@media(max-width:500px){
+@media(max-width:700px){
   .tab-nav{overflow-x:auto;justify-content:flex-start;padding-left:16px}
-  .ev-table{font-size:12px}
-  .ev-table tbody td,.ev-table thead th{padding:8px 10px}
+  .table-wrap{display:none}
+  .card-grid{display:block}
+}
+@media(max-width:500px){
+  .section{padding:0 16px 40px}
+  .section-header{padding:12px 16px}
 }
 </style>
 </head>
@@ -362,6 +432,31 @@ function tagHtml(car){
   return '';
 }
 
+function renderCard(car){
+  const pb = paybackClass(car.payback);
+  return `<div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-name">${car.name}</div>
+        ${car.category ? `<span class="t-tag t-tag-cat" style="margin-top:4px">${car.category}</span> ` : ''}${tagHtml(car)}
+      </div>
+      <span class="car-badge ${originClass[car.origin]||''}">${car.origin}</span>
+    </div>
+    <div class="card-specs">${car.specs.join(' · ')}</div>
+    <div class="card-row"><span class="card-label">Precio eléctrico</span><span class="card-val">$${car.price.toFixed(2).replace(".",",")}M</span></div>
+    <div class="card-vs">vs ${car.vs} — $${car.vsPrice.toFixed(2).replace(".",",")}M</div>
+    <div class="card-row"><span class="card-label">Diferencia</span><span class="card-val">${fmtPrima(car.prima)}</span></div>
+    <div class="card-bottom">
+      <div class="card-ahorro">$${car.ahorroTotal.toFixed(2).replace(".",",")}M<small>ahorro/año</small></div>
+      <span class="t-payback-badge t-pb-${pb}"><span class="t-pb-dot"></span>${car.payback}</span>
+    </div>
+  </div>`;
+}
+
+function buildCards(cars){
+  return `<div class="card-grid">${cars.map(renderCard).join('')}</div>`;
+}
+
 function renderRow(car){
   const pb = paybackClass(car.payback);
   return `<tr>
@@ -408,11 +503,11 @@ function paybackNum(p){
 }
 allCars.sort((a,b) => paybackNum(a.payback) - paybackNum(b.payback));
 
-// Render all sections
+// Render all sections (table + cards)
 ['suvs','sedanes','phev'].forEach(id => {
-  document.getElementById(id+'-table').innerHTML = buildTable(data[id], false);
+  document.getElementById(id+'-table').innerHTML = buildTable(data[id], false) + buildCards(data[id]);
 });
-document.getElementById('todos-table').innerHTML = buildTable(allCars, true);
+document.getElementById('todos-table').innerHTML = buildTable(allCars, true) + buildCards(allCars);
 
 function showTab(id){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
