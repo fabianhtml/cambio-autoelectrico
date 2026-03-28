@@ -353,6 +353,7 @@ body{
     <p>Vista completa de SUVs, sedanes e híbridos, ordenados por conveniencia (los que más convienen primero).</p>
   </div>
   <div class="table-wrap" id="todos-table"></div>
+  <div id="todos-cards"></div>
 </div>
 
 <!-- ========== SUVs ========== -->
@@ -362,6 +363,7 @@ body{
     <p>Referencia a bencina: <span class="ref-tag">RAV4 2.0 ~$28,99M</span> <span class="ref-tag">Tucson 2.0 ~$26,99M</span> <span class="ref-tag">Sportage 2.0 ~$24,99M</span> <span class="ref-tag">10 km/L</span> <span class="ref-tag">$3,17M/año en bencina</span></p>
   </div>
   <div class="table-wrap" id="suvs-table"></div>
+  <div id="suvs-cards"></div>
 </div>
 
 <!-- ========== Sedanes ========== -->
@@ -371,6 +373,7 @@ body{
     <p>Referencia a bencina: <span class="ref-tag">Corolla 2.0 ~$22,49M</span> <span class="ref-tag">BMW 320i ~$52,99M</span> <span class="ref-tag">12 km/L</span> <span class="ref-tag">$2,65M/año en bencina</span></p>
   </div>
   <div class="table-wrap" id="sedanes-table"></div>
+  <div id="sedanes-cards"></div>
 </div>
 
 <div class="section" id="phev">
@@ -379,6 +382,7 @@ body{
     <p>El ahorro depende de cuánto cargues. Se asume 50% de los kilómetros en modo eléctrico.</p>
   </div>
   <div class="table-wrap" id="phev-table"></div>
+  <div id="phev-cards"></div>
 </div>
 
 <div class="footer">
@@ -480,12 +484,12 @@ function buildTable(cars, showType){
       ${showType ? '<th>Tipo</th>' : ''}
       <th>Origen</th>
       <th>Características</th>
-      <th class="num">Precio eléctrico</th>
-      <th>Equivalente a bencina</th>
-      <th class="num">Precio bencina</th>
+      <th class="num">Precio</th>
+      <th>vs. Bencina</th>
+      <th class="num">Precio ref.</th>
       <th class="num">Diferencia</th>
-      <th class="num">Ahorro anual</th>
-      <th>¿Cuándo recuperas?</th>
+      <th class="num">Ahorro/año</th>
+      <th>Recuperación</th>
     </tr></thead>
     <tbody>${cars.map(renderRow).join('')}</tbody>
   </table>`;
@@ -503,11 +507,13 @@ function paybackNum(p){
 }
 allCars.sort((a,b) => paybackNum(a.payback) - paybackNum(b.payback));
 
-// Render all sections (table + cards)
+// Render all sections
 ['suvs','sedanes','phev'].forEach(id => {
-  document.getElementById(id+'-table').innerHTML = buildTable(data[id], false) + buildCards(data[id]);
+  document.getElementById(id+'-table').innerHTML = buildTable(data[id], false);
+  document.getElementById(id+'-cards').innerHTML = buildCards(data[id]);
 });
-document.getElementById('todos-table').innerHTML = buildTable(allCars, true) + buildCards(allCars);
+document.getElementById('todos-table').innerHTML = buildTable(allCars, true);
+document.getElementById('todos-cards').innerHTML = buildCards(allCars);
 
 function showTab(id){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
